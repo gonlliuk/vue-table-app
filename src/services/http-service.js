@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 export default class HTTPService {
-    constructor(baseUrl = '/', headers = {}) {
+    constructor(baseURL = '/', headers = {}) {
         this.http = axios.create({
-            baseUrl,
+            baseURL,
             headers: {
                 common: {
                     ...headers.common,
