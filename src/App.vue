@@ -1,13 +1,23 @@
 <template>
     <div id="app">
+        <PreloaderOverlay v-show="loading" />
         <h1>App</h1>
     </div>
 </template>
 
 <script>
+    import PreloaderOverlay from './components/PreloaderOverlay';
+
     export default {
         name: 'App',
-        components: {},
+        components: {
+            PreloaderOverlay,
+        },
+        data() {
+            return {
+                loading: true,
+            };
+        },
     };
 </script>
 
