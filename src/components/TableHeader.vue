@@ -11,10 +11,7 @@
                     <TableHeaderCell
                         v-for="header in headers"
                         :key="header.id"
-                        :header-id="header.id"
-                        :header-title="header.title"
-                        :disable-search="header.disableSearch"
-                        :disable-sorting="header.disableSorting"
+                        :header="header"
                         @sortChanged="onSortChanged"
                         @searchChanged="onSearchChanged"
 />

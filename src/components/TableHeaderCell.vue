@@ -1,16 +1,16 @@
 <template>
     <th
         :class="sortingClass"
-        @click="onHeaderCellClick(headerId)"
+        @click="onHeaderCellClick(header.id)"
 >
         <div class="header-title">
-            {{ headerTitle }}
+            {{ header.title }}
             <i class="material-icons">
-                {{ getSortIcon(headerId) }}
+                {{ getSortIconByCell(header) }}
             </i>
         </div>
         <div
-v-show="!disableSearch"
+            v-show="!header.disableSearch"
             class="header-search"
             @click.stop
 >
@@ -37,43 +37,23 @@ v-show="!disableSearch"
     export default {
         name: 'TableHeaderCellComponent',
         props: {
-            headerId: {
-                type: String,
+            header: {
+                type: Object,
                 default() {
-                    return '';
+                    return {};
                 },
                 required: true,
-            },
-            headerTitle: {
-                type: String,
-                default() {
-                    return '';
-                },
-                required: true,
-            },
-            disableSorting: {
-                type: Boolean,
-                default() {
-                    return false;
-                },
-            },
-            disableSearch: {
-                type: Boolean,
-                default() {
-                    return false;
-                },
             },
         },
         data() {
             return {
-                searchQuery: '',
-                sort: '',
-                order: '',
+                searchQuery: this.header.searchField === this.header.id ? this.header.searchQuery : '',
+                order: this.header.sort === this.header.id ? this.header.order : '',
             };
         },
         computed: {
             sortingClass() {
-                return this.disableSorting ? 'disabled-sorting' : '';
+                return this.header.disableSorting ? 'disabled-sorting' : '';
             },
             sortIcon() {
                 switch (this.order) {
@@ -86,36 +66,47 @@ v-show="!disableSearch"
                 }
             },
         },
+        watch: {
+            header(newVal) {
+                if (newVal.id !== newVal.searchField) {
+                    this.searchQuery = '';
+                }
+
+                if (newVal.id !== newVal.sort) {
+                    this.order = '';
+                }
+            }
+        },
         methods: {
-            getSortIcon(cellId) {
-                return cellId === this.sort ? this.sortIcon : '';
+            getSortIconByCell(cell) {
+                return cell.id === cell.sort ? this.sortIcon : '';
             },
             emitSearch() {
                 this.$emit('searchChanged', {
                     searchQuery: this.searchQuery,
-                    searchFiled: this.headerId,
+                    searchField: this.header.id,
                 });
             },
             onHeaderCellClick(cellId) {
-                if (this.disableSorting) {
+                if (this.header.disableSorting) {
                     return;
                 }
 
-                this.sort = cellId;
+                let sort = cellId;
                 switch (this.order) {
                     case 'asc':
                         this.order = 'desc';
                         break;
                     case 'desc':
                         this.order = '';
-                        this.sort = '';
+                        sort = '';
                         break;
                     default:
                         this.order = 'asc';
                         break;
                 }
                 this.$emit('sortChanged', {
-                    sort: this.sort,
+                    sort: sort,
                     order: this.order,
                 });
             },

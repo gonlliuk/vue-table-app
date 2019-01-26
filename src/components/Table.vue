@@ -1,7 +1,7 @@
 <template>
     <div class="table-container">
         <TableHeader
-            :headers="headers"
+            :headers="headersWithSortAndSearch"
             @sortChanged="onSortChanged"
             @searchChanged="onSearchChanged"
 />
@@ -44,10 +44,20 @@
                     page: 1,
                     sort: '',
                     order: '',
-                    searchFiled: '',
+                    searchField: '',
                     searchQuery: '',
                 },
             };
+        },
+        computed: {
+            headersWithSortAndSearch() {
+                return this.headers.map(header => {
+                    return {
+                        ...header,
+                        ...this.params,
+                    }
+                })
+            },
         },
         methods: {
             onSortChanged({ order, sort }) {
@@ -55,15 +65,19 @@
                     ...this.params,
                     order,
                     sort,
+                    searchQuery: '',
+                    searchField: '',
                     page: 1,
                 };
                 this.$emit('sortChanged', this.params);
             },
-            onSearchChanged({ searchQuery, searchFiled }) {
+            onSearchChanged({ searchQuery, searchField }) {
                 this.params = {
                     ...this.params,
+                    order: '',
+                    sort: '',
                     searchQuery,
-                    searchFiled,
+                    searchField,
                     page: 1,
                 };
                 this.$emit('searchChanged', this.params);

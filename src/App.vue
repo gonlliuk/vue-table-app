@@ -33,7 +33,7 @@
                 loading: false,
                 tableData: [],
                 sortedAlbums: [],
-                storageKeys: ['limit', 'sort', 'order', 'searchFiled', 'searchQuery'],
+                storageKeys: ['limit', 'sort', 'order', 'searchField', 'searchQuery'],
                 tableHeaders: [
                     {
                         id: 'albumId',
@@ -117,7 +117,7 @@
                 limit = 25,
                 sort = null,
                 order = null,
-                searchFiled = null,
+                searchField = null,
                 searchQuery = null,
             }) {
                 const queryParams = {
@@ -125,7 +125,7 @@
                     _limit: limit,
                     _sort: sort || null,
                     _order: order || null,
-                    [`${searchFiled}_like`]: searchQuery || null,
+                    [`${searchField}_like`]: searchQuery || null,
                 };
                 let photos = await this.getPhotos(queryParams);
 
