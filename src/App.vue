@@ -20,7 +20,7 @@
     import HttpService from './services/http-service';
 
     const http = new HttpService('https://jsonplaceholder.typicode.com');
-    const albumsStorage = new Map();
+    const albumsStorageMap = new Map();
 
     export default {
         name: 'App',
@@ -32,7 +32,8 @@
             return {
                 loading: false,
                 tableData: [],
-                sortedAlbums: [],
+                albums: [],
+                albumsPhotosMap: new Map(),
                 tableHeaders: [
                     {
                         id: 'albumId',
@@ -41,8 +42,6 @@
                     }, {
                         id: 'albumTitle',
                         title: 'Album Title',
-                        disableSearch: true,
-                        disableSorting: true,
                     }, {
                         id: 'title',
                         title: 'Photo Title',
@@ -60,7 +59,7 @@
             try {
                 const albums = await this.getAlbums();
                 albums.forEach(album => {
-                    albumsStorage.set(album.id, album);
+                    albumsStorageMap.set(album.id, album);
                 });
 
                 this.tableData = await this.getTableData({});
@@ -78,10 +77,12 @@
                 this.tableData = this.tableData.concat(data);
             },
             async onSortChanged(event) {
+                // clear table data to scroll table up
                 this.tableData = [];
                 this.tableData = await this.getDataWithLoading(event);
             },
             async onSearchChanged(event) {
+                // clear tableData to scroll table up
                 this.tableData = [];
                 this.tableData = await this.getDataWithLoading(event);
             },
@@ -92,17 +93,61 @@
                 return http.get('albums', queryParams);
             },
             async getAlbumById(albumId = 0) {
-                let album = albumsStorage.get(albumId);
+                let album = albumsStorageMap.get(albumId);
                 if (album) {
                     return album;
                 }
 
                 album = await http.get(`albums/${albumId}`) || {};
                 if (album.id) {
-                    albumsStorage.set(album.id, album);
+                    albumsStorageMap.set(album.id, album);
                 }
 
                 return album;
+            },
+            async getPhotosSortedOrSearchedByAlbumTitle({ order, page = 1, limit = 0, searchField, searchQuery }) {
+                // make new request if new sort order or search is applied
+                if (page === 1) {
+                    this.albums = [];
+                    this.albumsPhotosMap.clear();
+                }
+
+                if (!this.albums.length) {
+                    this.albums = await this.getAlbums({
+                        _order: order || null,
+                        _sort: order ? 'title' : null,
+                        title_like: searchQuery || null,
+                    });
+                }
+
+                let photos = [];
+                let tableDataMap = new Map();
+                this.tableData.forEach(item => {
+                    tableDataMap.set(item.id, item);
+                });
+                // The for loop is used instead of Array.forEach to be able to exit from iterating if page is already full
+                for (let i = 0; i < this.albums.length; i += 1) {
+                    let requestedPhotos = [];
+                    if (!this.albumsPhotosMap.has(this.albums[i].id)) {
+                        requestedPhotos = await this.getPhotos({ albumId: this.albums[i].id });
+                        this.albumsPhotosMap.set(this.albums[i].id, requestedPhotos);
+                    } else {
+                        requestedPhotos = this.albumsPhotosMap.get(this.albums[i].id);
+                    }
+
+                    requestedPhotos.forEach(photo => {
+                        if (!tableDataMap.has(photo.id)) {
+                            photo.albumTitle = this.albums[i].title || 'No title';
+                            photos.push(photo);
+                        }
+                    });
+
+                    if (photos.length >= limit) {
+                        break;
+                    }
+                }
+
+                return photos.slice(0, limit);
             },
             addAlbumTitleToPhotos(photos = []) {
                 return Promise.all(photos.map(async photo => {
@@ -129,6 +174,10 @@
                     _order: order || null,
                     [`${searchField}_like`]: searchQuery || null,
                 };
+                if (sort === 'albumTitle' || searchField === 'albumTitle') {
+                    return this.getPhotosSortedOrSearchedByAlbumTitle({ page, limit, order, searchQuery});
+                }
+
                 let photos = await this.getPhotos(queryParams);
 
                 return this.addAlbumTitleToPhotos(photos);
