@@ -27,6 +27,11 @@
 >
                 </td>
             </tr>
+            <tr v-show="loading">
+                <td colspan="4">
+                    <h4>Loading more...</h4>
+                </td>
+            </tr>
             </tbody>
         </table>
     </div>
@@ -78,8 +83,8 @@
                 const isClientHeightZero = this.element.clientHeight === 0;
                 const isScrollOnBottom = this.element.scrollTop + this.element.clientHeight + loadEarlierPx >= this.element.scrollHeight
                 if (!isClientHeightZero && isScrollOnBottom) {
-                    this.loading = true;
                     this.$emit('loadMore');
+                    this.loading = true;
                 }
             },
         },

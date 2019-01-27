@@ -1,6 +1,5 @@
 <template>
     <div id="app">
-        <PreloaderOverlay v-show="loading" />
         <h1>Vue Table App</h1>
         <Table
             class="app-table"
@@ -10,6 +9,7 @@
             @sortChanged="onSortChanged"
             @searchChanged="onSearchChanged"
         />
+        <PreloaderOverlay v-show="loading" />
     </div>
 </template>
 
@@ -73,18 +73,18 @@
         },
         methods: {
             async onLoadMore(event) {
-                const data = await this.getDataWithLoading(event);
+                const data = await this.getTableData(event);
                 this.tableData = this.tableData.concat(data);
             },
             async onSortChanged(event) {
                 // clear table data to scroll table up
                 this.tableData = [];
-                this.tableData = await this.getDataWithLoading(event);
+                this.tableData = await this.getTableData(event);
             },
             async onSearchChanged(event) {
                 // clear tableData to scroll table up
                 this.tableData = [];
-                this.tableData = await this.getDataWithLoading(event);
+                this.tableData = await this.getTableData(event);
             },
             getPhotos(queryParams) {
                 return http.get('photos', queryParams);
@@ -174,28 +174,17 @@
                     _order: order || null,
                     [`${searchField}_like`]: searchQuery || null,
                 };
-                if (sort === 'albumTitle' || searchField === 'albumTitle') {
-                    return this.getPhotosSortedOrSearchedByAlbumTitle({ page, limit, order, searchQuery});
-                }
-
-                let photos = await this.getPhotos(queryParams);
-
-                return this.addAlbumTitleToPhotos(photos);
-            },
-            getDataWithLoading(...args) {
-                // enable loading after short period of time if request haven't resolved yet
-                const timeout = setTimeout(() => {
-                    this.loading = true;
-                }, 300);
                 try {
-                    return this.getTableData(...args);
+                    if (sort === 'albumTitle' || searchField === 'albumTitle') {
+                        return this.getPhotosSortedOrSearchedByAlbumTitle({ page, limit, order, searchQuery});
+                    }
+
+                    let photos = await this.getPhotos(queryParams);
+
+                    return this.addAlbumTitleToPhotos(photos);
                 }
                 catch (e) {
                     console.error(e);
-                }
-                finally {
-                    clearTimeout(timeout);
-                    this.loading = false;
                 }
             },
         },
