@@ -15,7 +15,7 @@ npm run serve
 npm run build
 ```
 
-### Run already built app on production
+### Build app and run production server
 ```
 npm start
 ```
