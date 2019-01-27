@@ -5,7 +5,7 @@
             cellpadding="0"
             cellspacing="0"
             border="0"
->
+        >
             <thead>
                 <tr>
                     <TableHeaderCell
@@ -14,7 +14,7 @@
                         :header="header"
                         @sortChanged="onSortChanged"
                         @searchChanged="onSearchChanged"
-/>
+                    />
                 </tr>
             </thead>
         </table>
@@ -48,6 +48,3 @@
         },
     };
 </script>
-
-<style lang="scss">
-</style>

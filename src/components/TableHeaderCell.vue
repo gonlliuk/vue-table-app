@@ -2,7 +2,7 @@
     <th
         :class="sortingClass"
         @click="onHeaderCellClick(header.id)"
->
+    >
         <div class="header-title">
             {{ header.title }}
             <i class="material-icons">
@@ -13,12 +13,12 @@
             v-show="!header.disableSearch"
             class="header-search"
             @click.stop
->
+        >
             <input
                 v-model="searchQuery"
                 type="text"
                 @keyup.enter="emitSearch"
->
+            >
             <button
                 class="search-button"
                 type="button"
@@ -75,7 +75,7 @@
                 if (newVal.id !== newVal.sort) {
                     this.order = '';
                 }
-            }
+            },
         },
         methods: {
             getSortIconByCell(cell) {

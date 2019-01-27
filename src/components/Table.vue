@@ -4,11 +4,11 @@
             :headers="headersWithSortAndSearch"
             @sortChanged="onSortChanged"
             @searchChanged="onSearchChanged"
-/>
+        />
         <TableBody
             :data="data"
             @loadMore="onLoadMore"
-/>
+        />
     </div>
 </template>
 
@@ -55,8 +55,8 @@
                     return {
                         ...header,
                         ...this.params,
-                    }
-                })
+                    };
+                });
             },
         },
         methods: {

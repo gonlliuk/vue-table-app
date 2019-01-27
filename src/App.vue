@@ -9,7 +9,7 @@
             @loadMore="onLoadMore"
             @sortChanged="onSortChanged"
             @searchChanged="onSearchChanged"
-/>
+        />
     </div>
 </template>
 
@@ -33,11 +33,11 @@
                 loading: false,
                 tableData: [],
                 sortedAlbums: [],
-                storageKeys: ['limit', 'sort', 'order', 'searchField', 'searchQuery'],
                 tableHeaders: [
                     {
                         id: 'albumId',
                         title: 'Album Id',
+                        disableSearch: true,
                     }, {
                         id: 'albumTitle',
                         title: 'Album Title',
@@ -64,9 +64,11 @@
                 });
 
                 this.tableData = await this.getTableData({});
-            } catch (error) {
-                console.error(error);
-            } finally {
+            }
+            catch (e) {
+                console.error(e);
+            }
+            finally {
                 this.loading = false;
             }
         },
@@ -106,7 +108,7 @@
                 return Promise.all(photos.map(async photo => {
                     const photoAlbum = await this.getAlbumById(photo.albumId);
 
-                    return await {
+                    return {
                         ...photo,
                         albumTitle: photoAlbum.title || 'No title',
                     };
@@ -115,10 +117,10 @@
             async getTableData({
                 page = 1,
                 limit = 25,
-                sort = null,
-                order = null,
-                searchField = null,
-                searchQuery = null,
+                sort,
+                order,
+                searchField,
+                searchQuery,
             }) {
                 const queryParams = {
                     _page: page,
@@ -138,9 +140,11 @@
                 }, 300);
                 try {
                     return this.getTableData(...args);
-                } catch (e) {
+                }
+                catch (e) {
                     console.error(e);
-                } finally {
+                }
+                finally {
                     clearTimeout(timeout);
                     this.loading = false;
                 }
