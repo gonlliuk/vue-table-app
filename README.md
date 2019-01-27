@@ -1,4 +1,4 @@
-# vue-table-app
+# [vue-table-app](https://vue-table-app.herokuapp.com)
 
 ## Project setup
 ```
@@ -13,6 +13,11 @@ npm run serve
 ### Compiles and minifies for production
 ```
 npm run build
+```
+
+### Run already built app on production
+```
+npm start
 ```
 
 ### Lints and fixes files
