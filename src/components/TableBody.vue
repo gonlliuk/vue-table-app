@@ -47,11 +47,13 @@
         data() {
             return {
                 loading: false,
+                endOfData: false,
                 element: null,
             };
         },
         watch: {
-            data() {
+            data(newData, oldData) {
+                this.endOfData = !!(newData.length && newData.length === oldData.length);
                 this.loading = false;
             }
         },
@@ -68,12 +70,14 @@
         },
         methods: {
             loadMoreDataListener() {
-                if (!this.element || this.loading) {
+                if (!this.element || this.loading || this.endOfData) {
                     return;
                 }
 
                 const loadEarlierPx = 100;
-                if (this.element.scrollTop + this.element.clientHeight + loadEarlierPx >= this.element.scrollHeight) {
+                const isClientHeightZero = this.element.clientHeight === 0;
+                const isScrollOnBottom = this.element.scrollTop + this.element.clientHeight + loadEarlierPx >= this.element.scrollHeight
+                if (!isClientHeightZero && isScrollOnBottom) {
                     this.loading = true;
                     this.$emit('loadMore');
                 }
